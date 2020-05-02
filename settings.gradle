@@ -1,0 +1,3 @@
+rootProject.name='General App'
+include ':app'
+include ':JavaTests'
