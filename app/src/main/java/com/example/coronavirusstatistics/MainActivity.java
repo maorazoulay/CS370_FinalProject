@@ -16,11 +16,13 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.testfairy.TestFairy;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +33,18 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+//import com.testfairy.TestFairy;
+
 
 public class MainActivity extends Activity {
     private TextView response;
     private static List<String> data;
+    private String stateEndpoint = "http://coronavirusapi.com/getTimeSeries/%s";
+    private String countryEndpoint = "https://api.covid19api.com/total/country/united%20states";
+    private static final String RESPONSE_FORMAT = "Last Updated: %s\n" +
+            "People Tested: %s\n" +
+            "People Tested Positive: %s\n" +
+            "Number Of Deaths: %s";
 
 
     // TODO: 3/10/2020 build apk then - new upload in testfairy - invite users - get 5 users to test your app
@@ -45,7 +55,7 @@ public class MainActivity extends Activity {
         StrictMode.setThreadPolicy(policy);
 
         super.onCreate(savedInstanceState);
-        TestFairy.begin(this, "SDK-s3agrPwy");
+//        TestFairy.begin(this, "SDK-s3agrPwy");
         setContentView(R.layout.activity_my_main);
 
         Button getDataButton = findViewById(R.id.getDataButton);
@@ -55,10 +65,13 @@ public class MainActivity extends Activity {
             String stateInitials = initialsBox.getText().toString().toUpperCase();
 
             String responseString = null;
-            String endpoint = "http://coronavirusapi.com/getTimeSeries/%s";
-
-
-            String preparedRequest = String.format(endpoint, stateInitials);
+            String preparedRequest;
+            boolean isCountry = stateInitials.equalsIgnoreCase("US");
+            if (isCountry) {
+                preparedRequest = countryEndpoint;
+            } else {
+                preparedRequest = String.format(stateEndpoint, stateInitials);
+            }
 
             try {
                 URL url = new URL(preparedRequest);
@@ -67,25 +80,27 @@ public class MainActivity extends Activity {
                 in.close();
 //                  If an invalid input will be provided by the user then 2 possible messages will be returned - both under length of 41.
 //                    in that case: skip manipulation and return that message as it is to let the user know what is wrong with their input.
-//                  Else a much larger response will be returned which is the correct one we need - begin manipulation.
+//                  Else a much larger response will be returned which is the correct one we need, in that case - begin manipulation.
                 if (responseString.length() <= 40) {
                     throw new InvalidParameterException();
                 }
 
-                CSVParser csvRecords = CSVParser.parse(responseString, CSVFormat.DEFAULT);
-                List<CSVRecord> records = csvRecords.getRecords();
+                if (isCountry) {
+                    JSONArray jsonArray = new JSONArray(responseString);
+                    JSONObject finalRecord = (JSONObject) jsonArray.get(jsonArray.length() - 1);
+                    responseString = buildResponse(finalRecord);
+                } else {
+                    CSVParser csvRecords = CSVParser.parse(responseString, CSVFormat.DEFAULT);
+                    List<CSVRecord> records = csvRecords.getRecords();
 //                  Get the most up to date record (which is the last one)
-                CSVRecord finalRecord = records.get(records.size() - 1);
-
-                responseString = buildResponse(finalRecord);
-
-                System.out.println();
-            } catch (IOException e) {
+                    CSVRecord finalRecord = records.get(records.size() - 1);
+                    responseString = buildResponse(finalRecord);
+                }
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             } catch (InvalidParameterException e) {
                 System.out.println("Wrong input was inserted, check message");
             }
-
             response = findViewById(R.id.dataTextBox);
             response.setText(responseString);
         });
@@ -104,10 +119,6 @@ public class MainActivity extends Activity {
     }
 
     private static String buildResponse(CSVRecord finalRecord) {
-        String format = "Last Updated: %s\n" +
-                "People Tested: %s\n" +
-                "Tested Positive: %s\n" +
-                "Number Of Deaths: %s";
 
         String epochString = finalRecord.get(0);
         String numberOfPeopleTested = finalRecord.get(1);
@@ -115,10 +126,37 @@ public class MainActivity extends Activity {
         String deaths = finalRecord.get(3);
 
         Timestamp lastUpdated = convertToHumanDate(epochString);
-        String response = String.format(format, lastUpdated.toString(), numberOfPeopleTested,
+        String response = String.format(RESPONSE_FORMAT, lastUpdated.toString(), numberOfPeopleTested,
                 testedPositive, deaths);
         data = new ArrayList<>();
         data.add(lastUpdated.toString());
+        data.add(numberOfPeopleTested);
+        data.add(testedPositive);
+        data.add(deaths);
+        return response;
+    }
+
+    private static String buildResponse(JSONObject finalRecord) {
+
+        String dateString;
+        String numberOfPeopleTested = "N/A";
+        String testedPositive;
+        String deaths;
+        String lastUpdated;
+        try {
+            dateString = (String) finalRecord.get("Date");
+            testedPositive = String.valueOf(finalRecord.get("Confirmed"));
+            deaths = String.valueOf(finalRecord.get("Deaths"));
+            lastUpdated = dateString.substring(0, dateString.indexOf('T'));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        String response = String.format(RESPONSE_FORMAT, lastUpdated, numberOfPeopleTested,
+                testedPositive, deaths);
+        data = new ArrayList<>();
+        data.add(dateString);
         data.add(numberOfPeopleTested);
         data.add(testedPositive);
         data.add(deaths);
@@ -132,7 +170,7 @@ public class MainActivity extends Activity {
 
     private void sendPostRequest(TextView textView) {
         String format = "%s,%s,%s,%s";
-        String dbData = String.format(format,data.get(0), data.get(1), data.get(2), data.get(3));
+        String dbData = String.format(format, data.get(0), data.get(1), data.get(2), data.get(3));
         String endpoint = "https://9c99e932.ngrok.io/Azoulay_Maor/AndroidServlet";
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
