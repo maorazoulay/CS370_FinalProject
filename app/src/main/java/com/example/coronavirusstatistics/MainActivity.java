@@ -42,8 +42,8 @@ public class MainActivity extends Activity {
     private String stateEndpoint = "http://coronavirusapi.com/getTimeSeries/%s";
     private String countryEndpoint = "https://api.covid19api.com/total/country/united%20states";
     private static final String RESPONSE_FORMAT = "Last Updated: %s\n" +
-            "People Tested: %s\n" +
-            "People Tested Positive: %s\n" +
+            "Tested: %s\n" +
+            "Tested Positive: %s\n" +
             "Number Of Deaths: %s";
 
 
@@ -118,6 +118,7 @@ public class MainActivity extends Activity {
         });
     }
 
+//    @RequiresApi(api = Build.VERSION_CODES.O)
     private static String buildResponse(CSVRecord finalRecord) {
 
         String epochString = finalRecord.get(0);
@@ -126,10 +127,12 @@ public class MainActivity extends Activity {
         String deaths = finalRecord.get(3);
 
         Timestamp lastUpdated = convertToHumanDate(epochString);
-        String response = String.format(RESPONSE_FORMAT, lastUpdated.toString(), numberOfPeopleTested,
+        String timestampString = lastUpdated.toString();
+        String dateString = timestampString.substring(0, timestampString.indexOf(" "));
+        String response = String.format(RESPONSE_FORMAT, dateString, numberOfPeopleTested,
                 testedPositive, deaths);
         data = new ArrayList<>();
-        data.add(lastUpdated.toString());
+        data.add(dateString);
         data.add(numberOfPeopleTested);
         data.add(testedPositive);
         data.add(deaths);
@@ -165,6 +168,12 @@ public class MainActivity extends Activity {
 
     private static Timestamp convertToHumanDate(String epochString) {
         long epoch = Long.parseLong(epochString);
+//        Timestamp timestamp = new Timestamp(epoch * 1000);
+//        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+//
+//        Date today = new Date();
+//
+//        Date todayWithZeroTime = formatter.parse(formatter.format(today));
         return new Timestamp(epoch * 1000);
     }
 

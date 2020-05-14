@@ -3,8 +3,9 @@ package com.example.javatests;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -28,19 +29,19 @@ public class MyClass {
 
 
         try {
-            URL url = new URL(countryEndpoint);
+            URL url = new URL(endpoint);
 //            PlainTextInputStream in = (PlainTextInputStream) url.getContent();
             InputStream in = (InputStream) url.getContent();
             responseString = CharStreams.toString(new InputStreamReader(in, Charsets.UTF_8));
             in.close();
 
-            JSONArray jsonArray = new JSONArray(responseString);
-            JSONObject finalRecord = (JSONObject) jsonArray.get(jsonArray.length() - 1);
+//            JSONArray jsonArray = new JSONArray(responseString);
+//            JSONObject finalRecord = (JSONObject) jsonArray.get(jsonArray.length() - 1);
 
-//            CSVParser csvRecords = CSVParser.parse(responseString, CSVFormat.DEFAULT);
-//            List<CSVRecord> records = csvRecords.getRecords();
+            CSVParser csvRecords = CSVParser.parse(responseString, CSVFormat.DEFAULT);
+            List<CSVRecord> records = csvRecords.getRecords();
 //            Get the most up to date record (which is the last one)
-//            CSVRecord finalRecord = records.get(records.size() - 1);
+            CSVRecord finalRecord = records.get(records.size() - 1);
             responseString = buildResponse(finalRecord);
             System.out.println(responseString);
 //            DBOperations dbOperations = new DBOperations();
