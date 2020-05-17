@@ -4,10 +4,17 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
@@ -36,7 +43,7 @@ import java.util.List;
 //import com.testfairy.TestFairy;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private TextView response;
     private static List<String> data;
     private String stateEndpoint = "http://coronavirusapi.com/getTimeSeries/%s";
@@ -51,12 +58,21 @@ public class MainActivity extends Activity {
     @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         super.onCreate(savedInstanceState);
 //        TestFairy.begin(this, "SDK-s3agrPwy");
         setContentView(R.layout.activity_my_main);
+
+        Spinner spinner = findViewById(R.id.spinner1);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.states, android.R.layout.simple_spinner_item); //states info is in value/strings.xml
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
 
         Button getDataButton = findViewById(R.id.getDataButton);
         getDataButton.setOnClickListener(v -> {
@@ -195,6 +211,17 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             textView.setText(e.getMessage());
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String text = parent.getItemAtPosition(position).toString();
+        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
 
