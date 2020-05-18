@@ -5,6 +5,7 @@
     </string>
     <string name="e_g_ny">e.g. NY</string>
     <string name="covid_19_tracker">Covid-19 Tracker</string>
+    <string name="choose_a_state">Choose a State</string>
 
     <string-array name="states">
         <item>AL</item>

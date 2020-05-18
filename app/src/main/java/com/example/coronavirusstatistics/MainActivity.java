@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             response.setText(responseString);
         });
 
-        Button uploadDataButton = findViewById(R.id.uploadDataButton);
+       /* Button uploadDataButton = findViewById(R.id.uploadDataButton);
         uploadDataButton.setOnClickListener(v -> {
             if (response == null) {
                 response = findViewById(R.id.dataTextBox);
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             sendPostRequest(response);
 //            response.setText(dbResponse);
-        });
+        });*/
     }
 
 //    @RequiresApi(api = Build.VERSION_CODES.O)
