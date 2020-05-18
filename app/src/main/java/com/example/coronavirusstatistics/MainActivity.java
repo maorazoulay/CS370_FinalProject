@@ -1,28 +1,19 @@
 package com.example.coronavirusstatistics;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -40,12 +31,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-//import com.testfairy.TestFairy;
-
-
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private TextView response;
     private static List<String> data;
+    private static String stateInitials;
     private String stateEndpoint = "http://coronavirusapi.com/getTimeSeries/%s";
     private String countryEndpoint = "https://api.covid19api.com/total/country/united%20states";
     private static final String RESPONSE_FORMAT = "Last Updated: %s\n" +
@@ -58,27 +47,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @SuppressLint("SetTextI18n")
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
-
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         super.onCreate(savedInstanceState);
-//        TestFairy.begin(this, "SDK-s3agrPwy");
         setContentView(R.layout.activity_my_main);
 
         Spinner spinner = findViewById(R.id.spinner1);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.states, android.R.layout.simple_spinner_item); //states info is in value/strings.xml
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.states, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                stateInitials = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                stateInitials = null;
+            }
+        });
 
         Button getDataButton = findViewById(R.id.getDataButton);
         getDataButton.setOnClickListener(v -> {
-            EditText initialsBox = findViewById(R.id.stateInitialsTextBox);
-            initialsBox.onEditorAction(EditorInfo.IME_ACTION_DONE);
-            String stateInitials = initialsBox.getText().toString().toUpperCase();
+//            Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
 
             String responseString = null;
             String preparedRequest;
@@ -120,23 +113,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             response = findViewById(R.id.dataTextBox);
             response.setText(responseString);
         });
-
-       /* Button uploadDataButton = findViewById(R.id.uploadDataButton);
-        uploadDataButton.setOnClickListener(v -> {
-            if (response == null) {
-                response = findViewById(R.id.dataTextBox);
-                response.setText("Make sure to get the data first");
-                response = null;
-                return;
-            }
-            sendPostRequest(response);
-//            response.setText(dbResponse);
-        });*/
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.O)
     private static String buildResponse(CSVRecord finalRecord) {
-
         String epochString = finalRecord.get(0);
         String numberOfPeopleTested = finalRecord.get(1);
         String testedPositive = finalRecord.get(2);
@@ -156,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private static String buildResponse(JSONObject finalRecord) {
-
         String dateString;
         String numberOfPeopleTested = "N/A";
         String testedPositive;
@@ -191,37 +169,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //
 //        Date todayWithZeroTime = formatter.parse(formatter.format(today));
         return new Timestamp(epoch * 1000);
-    }
-
-    private void sendPostRequest(TextView textView) {
-        String format = "%s,%s,%s,%s";
-        String dbData = String.format(format, data.get(0), data.get(1), data.get(2), data.get(3));
-        String endpoint = "https://9c99e932.ngrok.io/Azoulay_Maor/AndroidServlet";
-        OkHttpClient client = new OkHttpClient();
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, dbData);
-        Request request = new Request.Builder()
-                .url(endpoint)
-                .post(body)
-                .build();
-        try {
-            Response response = client.newCall(request).execute();
-            textView.setText(response.body().string());
-
-        } catch (IOException e) {
-            textView.setText(e.getMessage());
-        }
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String text = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
     }
 }
 
