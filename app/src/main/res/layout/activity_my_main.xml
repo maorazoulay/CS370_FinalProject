@@ -19,8 +19,9 @@
         android:hint="@string/e_g_ny"
         android:imeOptions="actionDone"
         android:inputType="textPersonName"
-        android:textColorHint="#FFFFFF"
+        android:textColor="#FFFFFF"
 
+        android:textColorHint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
@@ -48,30 +49,37 @@
     <Button
         android:id="@+id/getDataButton"
         style="@style/BlueButton"
-        android:layout_width="97dp"
+        android:layout_width="124dp"
         android:layout_height="77dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="266dp"
+        android:layout_marginEnd="211dp"
+        android:layout_marginBottom="380dp"
+        android:background="#E24242"
         android:text="Get Data"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.709"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stateInitialsTextBox"
-        app:layout_constraintVertical_bias="0.087" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/uploadDataButton"
         style="@style/BlueButton"
-        android:layout_width="111dp"
-        android:layout_height="79dp"
-        android:text="Upload Data"
+        android:layout_width="124dp"
+        android:layout_height="77dp"
+        android:layout_marginStart="210dp"
+        android:layout_marginTop="266dp"
+        android:layout_marginEnd="69dp"
+        android:layout_marginBottom="380dp"
+        android:background="#2685D5"
+        android:text="Upload Snapshot"
         android:textColor="#FFFFFF"
+        android:textColorHighlight="#2685D5"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/getDataButton"
-        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stateInitialsTextBox"
-        app:layout_constraintVertical_bias="0.088" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/dataTextBox"
@@ -84,7 +92,7 @@
         android:fontFamily="sans-serif-condensed"
         android:lineSpacingExtra="24sp"
         android:textAlignment="textStart"
-        android:textColor="#0B0A0A"
+        android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
