@@ -3,4 +3,5 @@
     <color name="colorPrimary">#282C35</color>
     <color name="colorPrimaryDark">#282C35</color>
     <color name="colorAccent">#282C35</color>
+    <color name="spinnercolor">#FFFFFF</color>
 </resources>
